@@ -3,6 +3,11 @@ project(CMakeSFMLProject LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+set(SOURCES 
+    src/main.cpp
+    src/constants.h
+)
+
 include(FetchContent)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -12,7 +17,7 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(test src/main.cpp src/constants.h)
+add_executable(test ${SOURCES})
 target_compile_features(test PRIVATE cxx_std_17)
 target_link_libraries(test PRIVATE SFML::Graphics)
 
