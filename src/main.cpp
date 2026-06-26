@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "constants.h"
 
 
@@ -97,6 +98,7 @@ int main()
 	));
 	
 	float speed = 0.1f;
+	sf::Clock clock;
 
 	// EVENT LOOP : while the window is open
 	while ( window.isOpen() )
@@ -108,6 +110,10 @@ int main()
 		}
 
 		window.clear();
+
+		// Using sf::Clock.restart() to return the elapsed time since the last frame (delta time)
+		sf::Time deltaTime = clock.restart();
+		std::cout << "Delta time: " << deltaTime.asSeconds() << std::endl;
 
 		moveShapeByRef(rect, speed);
 		keepInBoundsByRef(rect);
