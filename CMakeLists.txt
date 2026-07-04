@@ -5,7 +5,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(SOURCES 
     src/main.cpp
-    src/constants.h
+    src/button/button.cpp
 )
 
 include(FetchContent)

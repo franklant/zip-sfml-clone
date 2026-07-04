@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <string>
 #include "constants.h"
+#include "button/button.h"
 
 
 /// @brief Modifes the position of the shape using reference. Instead of assigning a variable
@@ -8,12 +10,12 @@
 /// reference.
 /// @param r The rectangle we want to move.
 /// @param spd The speed at which we want to move the rectangle.
-void moveShapeByRef(sf::RectangleShape &r, float spd)
+void moveShapeByRef(sf::RectangleShape &r, float spd, float deltaTime)
 {
 	// move to the left
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
 		r.setPosition(sf::Vector2f(
-			r.getPosition().x - spd,
+			r.getPosition().x - spd * deltaTime,
 			r.getPosition().y - 0
 		));
 	}
@@ -21,7 +23,7 @@ void moveShapeByRef(sf::RectangleShape &r, float spd)
 	// move to the right
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
 		r.setPosition(sf::Vector2f(
-			r.getPosition().x + spd,
+			r.getPosition().x + spd * deltaTime,
 			r.getPosition().y - 0
 		));
 	}
@@ -30,7 +32,7 @@ void moveShapeByRef(sf::RectangleShape &r, float spd)
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
 		r.setPosition(sf::Vector2f(
 			r.getPosition().x - 0,
-			r.getPosition().y - spd
+			r.getPosition().y - spd * deltaTime
 		));
 	}
 
@@ -38,7 +40,7 @@ void moveShapeByRef(sf::RectangleShape &r, float spd)
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
 		r.setPosition(sf::Vector2f(
 			r.getPosition().x - 0,
-			r.getPosition().y + spd
+			r.getPosition().y + spd * deltaTime
 		));
 	}
 }
@@ -84,7 +86,14 @@ void keepInBoundsByRef(sf::RectangleShape &r)
 
 int main()
 {
-	sf::RenderWindow window( sf::VideoMode( { Constants::WINDOW_WIDTH, Constants::WINDOW_HEIGHT } ), "SFML works!" );
+	// configure window
+	std::string title = "SFML Zip Clone";
+	sf::RenderWindow window(
+		sf::VideoMode({Constants::WINDOW_WIDTH, Constants::WINDOW_HEIGHT}),
+		title,
+		sf::Style::Default,
+		sf::State::Windowed
+	);
 	
 	// create the rectangle
 	sf::Vector2f rectSize(20.0f, 20.0f);
@@ -96,8 +105,13 @@ int main()
 		(Constants::WINDOW_WIDTH / 2.0f) - (rectSize.x / 2.0f),
 		(Constants::WINDOW_HEIGHT / 2.0f) - (rectSize.y / 2.0f)
 	));
+
+	// create button
+	Button button(10.0f, 20.0f);
+	std::cout << "Button pressed? " << button.isPressed() << std::endl;
+
 	
-	float speed = 0.1f;
+	float speed = 100.0f;
 	sf::Clock clock;
 
 	// EVENT LOOP : while the window is open
@@ -113,12 +127,16 @@ int main()
 
 		// Using sf::Clock.restart() to return the elapsed time since the last frame (delta time)
 		sf::Time deltaTime = clock.restart();
-		std::cout << "Delta time: " << deltaTime.asSeconds() << std::endl;
 
-		moveShapeByRef(rect, speed);
+		// std::cout << "Delta time: " << deltaTime.asSeconds() << std::endl;
+
+		moveShapeByRef(rect, speed, deltaTime.asSeconds());
 		keepInBoundsByRef(rect);
 
+		button.update(window, deltaTime.asSeconds());
+
 		window.draw( rect );
+		window.draw( button );
 		window.display();
 	}
 }
