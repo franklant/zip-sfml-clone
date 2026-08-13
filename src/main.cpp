@@ -1,92 +1,22 @@
 #include <SFML/Graphics.hpp>
+#include "entities/player.h"
+#include "entities/asteroid.h"
+#include "entities/bullet.h"
+#include "entities/asteroid.h"
+#include "constants.h"
 #include <iostream>
 #include <string>
-#include "constants.h"
-#include "button/button.h"
+#include <vector>
 
-
-/// @brief Modifes the position of the shape using reference. Instead of assigning a variable
-/// to the new return value reflecting the change, we can modify the original variable by
-/// reference.
-/// @param r The rectangle we want to move.
-/// @param spd The speed at which we want to move the rectangle.
-void moveShapeByRef(sf::RectangleShape &r, float spd, float deltaTime)
+/// @brief This method is called once at the beginning of runtime (Only serves an organizational purpose).
+void start() 
 {
-	// move to the left
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-		r.setPosition(sf::Vector2f(
-			r.getPosition().x - spd * deltaTime,
-			r.getPosition().y - 0
-		));
-	}
-
-	// move to the right
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-		r.setPosition(sf::Vector2f(
-			r.getPosition().x + spd * deltaTime,
-			r.getPosition().y - 0
-		));
-	}
-
-	// move up
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
-		r.setPosition(sf::Vector2f(
-			r.getPosition().x - 0,
-			r.getPosition().y - spd * deltaTime
-		));
-	}
-
-	// move down
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
-		r.setPosition(sf::Vector2f(
-			r.getPosition().x - 0,
-			r.getPosition().y + spd * deltaTime
-		));
-	}
+    // code here ...
 }
 
-void keepInBoundsByRef(sf::RectangleShape &r)
+int main() 
 {
-	// if crossing the right border
-	if (r.getPosition().x >= Constants::WINDOW_WIDTH)
-	{
-		r.setPosition(sf::Vector2f(
-			0 - r.getSize().x,
-			r.getPosition().y
-		));
-	}
-
-	// if crossing the left border
-	if (r.getPosition().x + r.getSize().x <= -0.5)
-	{
-		r.setPosition(sf::Vector2f(
-			Constants::WINDOW_WIDTH,
-			r.getPosition().y
-		));
-	}
-
-	// if crossing the bottom border
-	if (r.getPosition().y >= Constants::WINDOW_HEIGHT)
-	{
-		r.setPosition(sf::Vector2f(
-			r.getPosition().x,
-			0 - r.getSize().y
-		));
-	}
-
-	// if crossing the top border
-	if (r.getPosition().y + r.getSize().y <= -0.5)
-	{
-		r.setPosition(sf::Vector2f(
-			r.getPosition().x,
-			Constants::WINDOW_HEIGHT
-		));
-	}
-}
-
-int main()
-{
-	// configure window
+    // configure window
 	std::string title = "SFML Zip Clone";
 	sf::RenderWindow window(
 		sf::VideoMode({Constants::WINDOW_WIDTH, Constants::WINDOW_HEIGHT}),
@@ -94,26 +24,22 @@ int main()
 		sf::Style::Default,
 		sf::State::Windowed
 	);
+
+    Player p1(Constants::WINDOW_WIDTH / 2.0f, Constants::WINDOW_HEIGHT - 25.0f);
+    Asteroid test(50, 0);
+
+    start();
+
+    std::vector<Bullet> bullets;
+    std::vector<Asteroid> asteroids;
+
+    asteroids.push_back(test);
+
+    float asteroidSpawnTime = 0;
+    float asteroidSpawnCooldown = 2;
+
+    sf::Clock clock;
 	
-	// create the rectangle
-	sf::Vector2f rectSize(20.0f, 20.0f);
-	sf::RectangleShape rect(rectSize);
-
-	// set the color and position of rectangle
-	rect.setFillColor(sf::Color::Blue);
-	rect.setPosition(sf::Vector2f(
-		(Constants::WINDOW_WIDTH / 2.0f) - (rectSize.x / 2.0f),
-		(Constants::WINDOW_HEIGHT / 2.0f) - (rectSize.y / 2.0f)
-	));
-
-	// create button
-	Button button(10.0f, 20.0f);
-	std::cout << "Button pressed? " << button.isPressed() << std::endl;
-
-	
-	float speed = 100.0f;
-	sf::Clock clock;
-
 	// EVENT LOOP : while the window is open
 	while ( window.isOpen() )
 	{
@@ -127,16 +53,55 @@ int main()
 
 		// Using sf::Clock.restart() to return the elapsed time since the last frame (delta time)
 		sf::Time deltaTime = clock.restart();
+        
+        // update the bullet list
+        bullets = p1.getBulletList();
 
-		// std::cout << "Delta time: " << deltaTime.asSeconds() << std::endl;
+        // draw bullet and check collision
+        for (Bullet &bullet : bullets)
+        {
+            window.draw(bullet);
 
-		moveShapeByRef(rect, speed, deltaTime.asSeconds());
-		keepInBoundsByRef(rect);
+            // collision testing
+            for (Asteroid &asteroid : asteroids)
+            {
+                if (bullet.checkCollision(asteroid))
+                {
+                    asteroid.destroy();
+                }
+            }
+        }
 
-		button.update(window, deltaTime.asSeconds());
+        // draw asteroids
+        for (int i = 0; i < asteroids.size(); i++)
+        {
+            asteroids[i].update(window, deltaTime.asSeconds());
+            window.draw(asteroids[i]);
 
-		window.draw( rect );
-		window.draw( button );
+            // if an asteroid is marked for deletion then delete
+            if (asteroids[i].readyToDelete())
+            {
+                // erase the object and free it's memory
+                asteroids.erase(asteroids.begin() + i);
+                asteroids.shrink_to_fit();
+            }
+        }
+
+        // asteroid spawn timer
+        if (asteroidSpawnTime >= asteroidSpawnCooldown)
+        {
+            std::cout << "Spawn Asteroid" << std::endl;
+            asteroidSpawnTime = 0;
+        } else {
+            asteroidSpawnTime += deltaTime.asSeconds();
+        }
+
+        p1.update(window, deltaTime.asSeconds());
+
+        window.draw(p1);
+
 		window.display();
 	}
+
+    return 0;
 }

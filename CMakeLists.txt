@@ -6,6 +6,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SOURCES 
     src/main.cpp
     src/button/button.cpp
+    src/entities/player.cpp
+    src/entities/asteroid.cpp
+    src/entities/bullet.cpp
+    src/entities/collidable.cpp
+    src/entities/asteroidSpawner.cpp
 )
 
 include(FetchContent)
