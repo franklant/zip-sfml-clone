@@ -11,6 +11,8 @@ set(SOURCES
     src/entities/bullet.cpp
     src/entities/collidable.cpp
     src/entities/asteroidSpawner.cpp
+    src/particles/particle.cpp 
+    src/particles/particleSpawner.cpp
 )
 
 include(FetchContent)

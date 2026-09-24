@@ -11,7 +11,7 @@ class AsteroidSpawner
 public:
     AsteroidSpawner() = default;
 
-    void update(sf::RenderWindow &gameWindow, float deltaTime);
+    void update(sf::RenderWindow &gameWindow, bool isPaused, float deltaTime);
 
     std::vector<Asteroid> getAsteroidList();
 

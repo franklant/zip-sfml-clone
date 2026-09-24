@@ -1,30 +1,28 @@
 #include <SFML/Graphics.hpp>
-#include "collidable.h"
+#include <vector>
 
-#ifndef BULLET_H
-#define BULLET_H
+#ifndef PARTICLE_H
+#define PARTICLE_H
 
-class Bullet : public Collidable
+class Particle : public sf::RectangleShape
 {
 public:
     // we need to set the player's x and y
-    Bullet(float x, float y);
+    Particle(float x, float y);
 
     void update(sf::RenderWindow &gameWindow, bool isPaused, float deltaTime);
-
-    void setId(int id);
-    int  getId();
+    void setSpeed(float newSpeed);
 
     bool readyToDelete() { return _canDelete; }
     void destroy() { _canDelete = true; }
-private:
-    void setCenter();
-    
-    // sf::RectangleShape _hitBox;
 
-    float _speed = 750;
+protected:
+    sf::Vector2f _position;
+    sf::Vector2f _size;
 
-    float _bulletId = -1;
+    float _speed = 350;
+
+    int _health = 0;
 
     bool _canDelete = false;
 };

@@ -11,19 +11,22 @@ Bullet::Bullet(float x, float y)
     setFillColor(sf::Color::Yellow);
 }
 
-void Bullet::update(sf::RenderWindow &gameWindow, float deltaTime)
+void Bullet::update(sf::RenderWindow &gameWindow, bool isPaused, float deltaTime)
 {
-    // don't run update loop if the bullet's id has not been set
-    if (_bulletId == -1) 
+    if (!isPaused) 
     {
-        std::cout << "[ERROR] bullet's id has not been set;" << std::endl;
-        return;
+        // don't run update loop if the bullet's id has not been set
+        if (_bulletId == -1) 
+        {
+            std::cout << "[ERROR] bullet's id has not been set;" << std::endl;
+            return;
+        }
+
+        // have it go move up indefinitely
+        _position.y -= _speed * deltaTime;
+
+        setPosition(_position);
     }
-
-    // have it go move up indefinitely
-    _position.y -= _speed * deltaTime;
-
-    setPosition(_position);
 }
 
 void Bullet::setId(int id)
